@@ -9,11 +9,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 
-const melderRoutes = require("./routes/inventory");
+// const melderRoutes = require("./routes/inventory");
 
-app.use("/", (req, res, next) => {
-  next();
-});
+// app.use("/", (req, res, next) => {
+//   next();
+// });
 
 // app.use("/warehouse", warehouseRoutes);
 

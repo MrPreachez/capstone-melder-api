@@ -6,7 +6,7 @@ exports.up = function (knex) {
   return knex.schema.createTable("results", (table) => {
     table.increments("id").primary();
     table
-      .integer("projects_id")
+      .integer("project_id").unsigned()
       .references("projects.id")
       .onUpdate("CASCADE")
       .onDelete("CASCADE");
@@ -20,5 +20,5 @@ exports.up = function (knex) {
  * @returns { Promise<void> }
  */
 exports.down = function (knex) {
-  return knex.schema.dropTable("responses");
+  return knex.schema.dropTable("results");
 };

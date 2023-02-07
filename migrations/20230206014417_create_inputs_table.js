@@ -8,7 +8,7 @@ exports.up = function (knex) {
     table.string("respondent_name", 255).notNullable();
     table.string("response_input", 500).notNullable();
     table
-      .integer("projects_id")
+      .integer("project_id").unsigned()
       .references("projects.id")
       .onUpdate("CASCADE")
       .onDelete("CASCADE");

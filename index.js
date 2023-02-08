@@ -14,11 +14,6 @@ app.use(express.static("public"));
 
 const melderRoutes = require("./routes/routes");
 
-// const configuration = new Configuration({
-//   apiKey: process.env.OPENAI_API_KEY,
-// });
-// const openai = new OpenAIApi(configuration);
-
 app.use("/", (req, res, next) => {
   next();
 });

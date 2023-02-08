@@ -1,5 +1,6 @@
 const knex = require("knex")(require("../knexfile"));
-const axios = require("axios");
+require("dotenv").config();
+const { Configuration, OpenAIApi } = require("openai");
 
 const addProject = async (req, res) => {
   try {
@@ -43,60 +44,94 @@ const addResponse = async (req, res) => {
       response_input,
       project_id,
     });
-    res.status(200).json({message: "Insert successful"});
+    res.status(200).json({ message: "Insert successful" });
   } catch (err) {
     res.status(400).send(`Error inserting project ${err}`);
   }
 };
- 
+//API call to openAI
+const configuration = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+const openai = new OpenAIApi(configuration);
+
 const addResult = async (req, res) => {
-    try {
-        const project_id = req.body.project_id;
-        const responses = await knex
-        .select()
-        .from("responses")
-        .where({ project_id });
+  try {
+    const project_id = req.params.id;
+    const responses = await knex
+      .select("*")
+      .from("responses")
+      .where({ project_id });
 
-   const responseTexts = responses.map((r) => r.response_input);
-   const requestBody = JSON.stringify({
-    prompt: "Please write a summary of the statements that shares insight and ways to bring about improvement to the given situation";
-    responses: responseTexts
-   });
+    const responseTexts = responses.map((r) => r.response_input);
+    const prompt = responseTexts;
 
-   const apiResponse = await axios.post(process.env.API_URL, requestBody, {
-    headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.API_KEY}`,
-    },
-   });
-   const result = apiResponse.data.choices[0].text;
+   
+      const apiResponse = await openai.createCompletion({
+        model: "text-davinci-003",
+        prompt: `input: ${prompt}`,
+        max_tokens: 2000,
+        temperature: 0.5,
+        top_p: 1,
+        n: 1,
+        stream: false,
+        logprobs: null,
+        // stop: ["input:"],
+      });
 
-   await knex("results").insert({
-    project_id,
-    result,
-   });
+  if (!apiResponse) {
+      return res.status(400).send("Error generating result: Result not found");
+  }
+ 
+    console.log(apiResponse.data.choices[0].text);
+    const result = apiResponse.data.choices[0].text;   
+   
+    await knex("results").insert({
+      project_id,
+      result,
+    });
 
-   res.status(200).json({mesage: "Result added successfully"});
-} catch (err) {
-    res.status(400).send(`Error generating result: ${err}`)
-}
+    res.status(200).json({ mesage: "Result added successfully" });
+  } catch (err) {
+    res.status(400).send(`Error generating result: ${err}`);
+  }
 };
 
+
 const getResult = async (req, res) => {
-    try {
-        const data = await knex("results").where({ project_id: req.params.id });
-        if (!data.length) {
-          return res
-            .status(404)
-            .send(`Result with project_id: ${req.params.id} is not found`);
-        }
-        return res.status(200).json(data[0]);
-      } catch (err) {
-        return res
-          .status(400)
-          .send(`Error retrieving result with project_id: ${req.params.id} ${err}`);
-      }
-    };
+  try {
+    const data = await knex("results").where({ project_id: req.params.id });
+    if (!data.length) {
+      return res
+        .status(404)
+        .send(`Result with project_id: ${req.params.id} is not found`);
+    }
+    return res.status(200).json(data[0]);
+  } catch (err) {
+    return res
+      .status(400)
+      .send(`Error retrieving result with project_id: ${req.params.id} ${err}`);
+  }
+};
+
+const getResponses = async (req, res) => {
+  try {
+    const projectId = req.params.id;
+    const responses = await knex("responses")
+      .where({ project_id: projectId })
+      .select("*");
+    if (!responses.length) {
+      return res
+        .status(404)
+        .send(`Record with id: ${req.params.id} is not found`);
+    }
+    return res.status(200).json(responses);
+  } catch (err) {
+    return res
+      .status(400)
+      .send(`Error retrieving project ${req.params.id} ${err}`);
+  }
+};
 
 module.exports = {
   addProject,
@@ -104,4 +139,5 @@ module.exports = {
   addResponse,
   addResult,
   getResult,
+  getResponses,
 };

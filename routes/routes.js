@@ -7,7 +7,7 @@ router.route("/project").post(melderController.addProject);
 router.route("/project/:id").get(melderController.getProject);
 router.route("/input").post(melderController.addResponse);
 router.route("/project/:id").post(melderController.addResult);
-router.route("/project/:id/results").get(melderController.getResult);
+router.route("/project/:id/result").get(melderController.getResult);
 
 router.route("/responses/:id").get(melderController.getResponses)
 

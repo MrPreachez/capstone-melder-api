@@ -14,7 +14,7 @@ const addProject = async (req, res) => {
       .select("id as project_id")
       .orderBy("id", "desc")
       .limit(1);
-    res.status(200).json({ project_id });
+    res.status(201).json({ project_id });
   } catch (err) {
     res.status(400).send(`Error inserting project ${err}`);
   }
@@ -81,7 +81,7 @@ const addResult = async (req, res) => {
 
   if (!apiResponse) {
       return res.status(400).send("Error generating result: Result not found");
-  }
+  };
  
     console.log(apiResponse.data.choices[0].text);
     const result = apiResponse.data.choices[0].text;   

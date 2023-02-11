@@ -136,6 +136,15 @@ const getResponses = async (req, res) => {
       .send(`Error retrieving project ${req.params.id} ${err}`);
   }
 };
+const getAllProjects = async (req, res) => {
+  try {
+    const projects = await knex("projects").select("*");
+    res.json(projects);
+  }catch(error) {
+    console.error(error);
+    res.status(400).json({error: 'Failed to retrieve projects'});
+  }
+}
 
 module.exports = {
   addProject,
@@ -144,4 +153,5 @@ module.exports = {
   addResult,
   getResult,
   getResponses,
+  getAllProjects,
 };

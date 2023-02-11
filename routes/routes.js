@@ -8,6 +8,7 @@ router.route("/project/:id").get(melderController.getProject);
 router.route("/input").post(melderController.addResponse);
 router.route("/project/:id").post(melderController.addResult);
 router.route("/project/:id/result").get(melderController.getResult);
+router.route("/project").get(melderController.getAllProjects);
 
 router.route("/responses/:id").get(melderController.getResponses)
 

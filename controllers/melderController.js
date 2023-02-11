@@ -4,10 +4,11 @@ const { Configuration, OpenAIApi } = require("openai");
 
 const addProject = async (req, res) => {
   try {
-    const { creator_name, project_name, question } = req.body;
+    const { creator_name, project_name, response_type, question } = req.body;
     await knex("projects").insert({
       creator_name,
       project_name,
+      response_type,
       question,
     });
     const [{ project_id }] = await knex("projects")
@@ -62,30 +63,32 @@ const addResult = async (req, res) => {
       .select("*")
       .from("responses")
       .where({ project_id });
-
+console.log(responses)
+    // const responseTexts = responses.map((r) => r.response_input);
+    // const prompt = responseTexts;
+    const responseType = responses.map((r) => r.response_type);
     const responseTexts = responses.map((r) => r.response_input);
-    const prompt = responseTexts;
+    const prompt = responseType.concat(responseTexts);
 
-   
-      const apiResponse = await openai.createCompletion({
-        model: "text-davinci-003",
-        prompt: `input: ${prompt}`,
-        max_tokens: 2000,
-        temperature: 0.5,
-        top_p: 1,
-        n: 1,
-        stream: false,
-        logprobs: null,
-        // stop: ["input:"],
-      });
+    const apiResponse = await openai.createCompletion({
+      model: "text-davinci-003",
+      prompt: `input: ${prompt}`,
+      max_tokens: 2000,
+      temperature: 0.9,
+      top_p: 1,
+      n: 1,
+      stream: false,
+      logprobs: null,
+      // stop: ["input:"],
+    });
 
-  if (!apiResponse) {
+    if (!apiResponse) {
       return res.status(400).send("Error generating result: Result not found");
-  };
- 
+    }
+
     console.log(apiResponse.data.choices[0].text);
-    const result = apiResponse.data.choices[0].text;   
-   
+    const result = apiResponse.data.choices[0].text;
+
     await knex("results").insert({
       project_id,
       result,
@@ -96,7 +99,6 @@ const addResult = async (req, res) => {
     res.status(400).send(`Error generating result: ${err}`);
   }
 };
-
 
 const getResult = async (req, res) => {
   try {

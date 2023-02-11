@@ -6,7 +6,7 @@ exports.up = function (knex) {
   return knex.schema.createTable("responses", (table) => {
     table.increments("id").primary();
     table.string("respondent_name", 255).notNullable();
-    table.string("response_input", 500).notNullable();
+    table.text("response_input").notNullable();
     table
       .integer("project_id").unsigned()
       .references("projects.id")

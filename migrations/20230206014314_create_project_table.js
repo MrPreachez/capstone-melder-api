@@ -7,7 +7,8 @@ exports.up = function (knex) {
     table.increments("id").primary();
     table.string("creator_name", 255).notNullable(),
       table.string("project_name", 255).notNullable();
-    table.string("question", 500).notNullable();
+    table.text("question").notNullable();
+    table.text("response_type").notNullable();
     table.timestamps(true, true);
   });
 };

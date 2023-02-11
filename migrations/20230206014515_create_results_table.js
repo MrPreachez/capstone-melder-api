@@ -10,7 +10,7 @@ exports.up = function (knex) {
       .references("projects.id")
       .onUpdate("CASCADE")
       .onDelete("CASCADE");
-    table.string("result", 3000).notNullable();
+    table.text("result").notNullable();
     table.timestamps(true, true)
   });
 };

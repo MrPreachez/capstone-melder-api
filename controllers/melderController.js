@@ -21,6 +21,8 @@ const addProject = async (req, res) => {
   }
 };
 
+
+
 const getProject = async (req, res) => {
   try {
     const data = await knex("projects").where({ id: req.params.id });
@@ -63,7 +65,7 @@ const addResult = async (req, res) => {
       .select("*")
       .from("responses")
       .where({ project_id });
-console.log(responses)
+    console.log(responses);
     // const responseTexts = responses.map((r) => r.response_input);
     // const prompt = responseTexts;
     const responseType = responses.map((r) => r.response_type);

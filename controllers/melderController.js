@@ -146,6 +146,20 @@ const getAllProjects = async (req, res) => {
   }
 }
 
+const getAllProjectData = async (req, res) => {
+  try {
+    const allProjectData = await knex("projects")
+      .select("projects.id as project_id", "creator_name", "project_name", "question", "response_type", "respondent_name", "response_input", "result")
+      .join("responses", "projects.id", "responses.project_id")
+      .join("results", "projects.id", "results.project_id")
+      .where("projects.id", req.params.id);
+    res.json(allProjectData);
+  } catch(error) {
+    console.error(error);
+    res.status(400).json({error: 'Failed to retrieve allProjectData'})
+  }
+}
+
 module.exports = {
   addProject,
   getProject,
@@ -154,4 +168,5 @@ module.exports = {
   getResult,
   getResponses,
   getAllProjects,
+  getAllProjectData
 };

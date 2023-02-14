@@ -21,8 +21,6 @@ const addProject = async (req, res) => {
   }
 };
 
-
-
 const getProject = async (req, res) => {
   try {
     const data = await knex("projects").where({ id: req.params.id });
@@ -52,6 +50,7 @@ const addResponse = async (req, res) => {
     res.status(400).send(`Error inserting project ${err}`);
   }
 };
+
 //API call to openAI
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -66,8 +65,6 @@ const addResult = async (req, res) => {
       .from("responses")
       .where({ project_id });
     console.log(responses);
-    // const responseTexts = responses.map((r) => r.response_input);
-    // const prompt = responseTexts;
     const responseType = responses.map((r) => r.response_type);
     const responseTexts = responses.map((r) => r.response_input);
     const prompt = responseType.concat(responseTexts);
@@ -83,19 +80,15 @@ const addResult = async (req, res) => {
       logprobs: null,
       // stop: ["input:"],
     });
-
     if (!apiResponse) {
       return res.status(400).send("Error generating result: Result not found");
     }
-
     console.log(apiResponse.data.choices[0].text);
     const result = apiResponse.data.choices[0].text;
-
     await knex("results").insert({
       project_id,
       result,
     });
-
     res.status(200).json({ mesage: "Result added successfully" });
   } catch (err) {
     res.status(400).send(`Error generating result: ${err}`);
@@ -136,29 +129,40 @@ const getResponses = async (req, res) => {
       .send(`Error retrieving project ${req.params.id} ${err}`);
   }
 };
+
 const getAllProjects = async (req, res) => {
   try {
     const projects = await knex("projects").select("*");
     res.json(projects);
-  }catch(error) {
+  } catch (error) {
     console.error(error);
-    res.status(400).json({error: 'Failed to retrieve projects'});
+    res.status(400).json({ error: "Failed to retrieve projects" });
   }
-}
+};
 
+//work in progress for efficiency
 const getAllProjectData = async (req, res) => {
   try {
     const allProjectData = await knex("projects")
-      .select("projects.id as project_id", "creator_name", "project_name", "question", "response_type", "respondent_name", "response_input", "result")
+      .select(
+        "projects.id as project_id",
+        "creator_name",
+        "project_name",
+        "question",
+        "response_type",
+        "respondent_name",
+        "response_input",
+        "result"
+      )
       .join("responses", "projects.id", "responses.project_id")
       .join("results", "projects.id", "results.project_id")
       .where("projects.id", req.params.id);
     res.json(allProjectData);
-  } catch(error) {
+  } catch (error) {
     console.error(error);
-    res.status(400).json({error: 'Failed to retrieve allProjectData'})
+    res.status(400).json({ error: "Failed to retrieve allProjectData" });
   }
-}
+};
 
 module.exports = {
   addProject,
@@ -168,5 +172,5 @@ module.exports = {
   getResult,
   getResponses,
   getAllProjects,
-  getAllProjectData
+  getAllProjectData,
 };

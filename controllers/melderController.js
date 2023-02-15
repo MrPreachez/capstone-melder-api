@@ -70,9 +70,9 @@ const addResult = async (req, res) => {
     const prompt = responseType.concat(responseTexts);
 
     const apiResponse = await openai.createCompletion({
-      model: "text-curie-001",
+      model: "text-davinci-003",
       prompt: `input: ${prompt}`,
-      max_tokens: 4000,
+      max_tokens: 2000,
       temperature: 0.9,
       top_p: 1,
       n: 1,
@@ -91,6 +91,7 @@ const addResult = async (req, res) => {
     });
     res.status(200).json({ mesage: "Result added successfully" });
   } catch (err) {
+    console.log(err)
     res.status(400).send(`Error generating result: ${err}`);
   }
 };

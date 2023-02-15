@@ -70,7 +70,7 @@ const addResult = async (req, res) => {
     const prompt = responseType.concat(responseTexts);
 
     const apiResponse = await openai.createCompletion({
-      model: "text-davinci-003",
+      model: "text-curie-001",
       prompt: `input: ${prompt}`,
       max_tokens: 2000,
       temperature: 0.9,

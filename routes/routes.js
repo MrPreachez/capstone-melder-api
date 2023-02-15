@@ -12,6 +12,6 @@ router.route("/project").get(melderController.getAllProjects);
 router.route("/project/:id/all").get(melderController.getAllProjectData);
 
 router.route("/responses/:id").get(melderController.getResponses);
-
+router.route("/project/delete/:id").delete(melderController.deleteProject);
 
 module.exports = router;

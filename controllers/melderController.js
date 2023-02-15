@@ -163,6 +163,15 @@ const getAllProjectData = async (req, res) => {
     res.status(400).json({ error: "Failed to retrieve allProjectData" });
   }
 };
+const deleteProject = async (req, res) => {
+  const projectId = req.params.id;
+  try {
+    await knex("projects").where({ id: projectId }).del();
+    res.status(204).send("project deleted");
+  } catch (error) {
+    res.status(404).send("project id not found");
+  }
+};
 
 module.exports = {
   addProject,
@@ -173,4 +182,5 @@ module.exports = {
   getResponses,
   getAllProjects,
   getAllProjectData,
+  deleteProject,
 };

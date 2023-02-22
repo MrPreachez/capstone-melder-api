@@ -71,11 +71,14 @@ const addResult = async (req, res) => {
 
     const apiResponse = await openai.createCompletion({
       model: "text-davinci-003",
-      prompt: `input: ${prompt}`,
+      prompt: `${prompt}`,
       max_tokens: 2000,
-      temperature: 0.9,
-      top_p: 1,
-      n: 1,
+      temperature: 0.4,
+      top_p: .5,
+      frequency_penalty: 1.0,
+      presence_penalty: 1.0,
+      best_of: 3,
+      // n: 1,
       stream: false,
       logprobs: null,
       // stop: ["input:"],

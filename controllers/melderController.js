@@ -57,36 +57,6 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
-// const addResult = async (req, res) => {
-//   try {
-//     const project_id = req.params.id;
-//     const responses = await knex
-//       .select("*")
-//       .from("responses")
-//       .where({ project_id });
-
-//     const project = await knex
-//       .select("*")
-//       .from("projects")
-//       .where({ project_id });
-//     console.log(responses);
-//     const responseType = project.map((r) => r.response_type);
-//     console.log(responseType);
-//     const responseTexts = responses.map((r) => r.response_input);
-//     const prompt = responseType.concat(responseTexts);
-//     console.log(prompt);
-
-//     const apiResponse = await openai.createCompletion({
-//       model: "text-davinci-003",
-//       prompt: `input: ${prompt}`,
-//       max_tokens: 2200,
-//       temperature: 0.4,
-//       top_p: 1,
-//       n: 1,
-//       stream: false,
-//       logprobs: null,
-//     });
-
 const addResult = async (req, res) => {
   try {
     const project_id = req.params.id;
@@ -96,20 +66,19 @@ const addResult = async (req, res) => {
       .join("responses", "projects.id", "=", "responses.project_id")
       .where("projects.id", project_id);
 
-    console.log(project);
-
     const responseType = project.map((r) => r.response_type);
     const responseTexts = project.map((r) => r.response_input);
     const prompt = [...responseType, ...responseTexts, ...responseType];
-    // const prompt = responseType.concat(responseTexts);
 
     const apiResponse = await openai.createCompletion({
       model: "text-davinci-003",
       prompt: `input: ${prompt}`,
-      max_tokens: 2200,
+      max_tokens: 2000,
       temperature: 0.4,
       top_p: 1,
-      best_of:3,
+      best_of: 3,
+      frequency_penalty: 1,
+      presence_penalty: 1,
       n: 1,
       stream: false,
       logprobs: null,
@@ -117,7 +86,6 @@ const addResult = async (req, res) => {
     if (!apiResponse) {
       return res.status(400).send("Error generating result: Result not found");
     }
-    // console.log(apiResponse.data.choices[0].text);
     const result = apiResponse.data.choices[0].text;
     await knex("results").insert({
       project_id,

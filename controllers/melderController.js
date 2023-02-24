@@ -64,29 +64,27 @@ const addResult = async (req, res) => {
       .select("*")
       .from("responses")
       .where({ project_id });
-    console.log(responses);
+    // console.log(responses);
     const responseType = responses.map((r) => r.response_type);
+    console.log(responseType)
     const responseTexts = responses.map((r) => r.response_input);
     const prompt = responseType.concat(responseTexts);
+    console.log(prompt)
 
     const apiResponse = await openai.createCompletion({
       model: "text-davinci-003",
-      prompt: `${prompt}`,
-      max_tokens: 2000,
+      prompt: `input: ${prompt}`,
+      max_tokens: 2200,
       temperature: 0.4,
-      top_p: .5,
-      frequency_penalty: 1.0,
-      presence_penalty: 1.0,
-      best_of: 3,
-      // n: 1,
+      top_p: 1,
+      n: 1,
       stream: false,
       logprobs: null,
-      // stop: ["input:"],
     });
     if (!apiResponse) {
       return res.status(400).send("Error generating result: Result not found");
     }
-    console.log(apiResponse.data.choices[0].text);
+    // console.log(apiResponse.data.choices[0].text);
     const result = apiResponse.data.choices[0].text;
     await knex("results").insert({
       project_id,
@@ -94,7 +92,7 @@ const addResult = async (req, res) => {
     });
     res.status(200).json({ mesage: "Result added successfully" });
   } catch (err) {
-    console.log(err)
+    console.log(err);
     res.status(400).send(`Error generating result: ${err}`);
   }
 };
